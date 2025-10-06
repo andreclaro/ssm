@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.2.0 - 2025-10-06
+
+### Added
+- Added port forward (`--forward`) functionality with multi ports support in one line: `ssm server -f 8888:80 -f 8889:89`
+
+
 ## 0.1.0 - 2025-10-06
 
 Discover SSM-managed instances across AWS profiles/regions, cache them locally, and connect via AWS SSM Session Manager.

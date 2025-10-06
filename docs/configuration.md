@@ -42,5 +42,3 @@ aws:
 discovery:
   ttl: 24h
 ```
-
-

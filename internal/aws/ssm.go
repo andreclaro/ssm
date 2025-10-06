@@ -97,6 +97,49 @@ func (sm *SSMSessionManager) startSessionWithCLI(instanceID string) error {
 	return nil
 }
 
+// StartPortForwarding starts an SSM port forwarding session using the AWS CLI.
+// It forwards localPort on the user's machine to remotePort on the target instance.
+func (sm *SSMSessionManager) StartPortForwarding(ctx context.Context, instanceID string, localPort, remotePort int) error {
+	logrus.WithFields(logrus.Fields{
+		"instance_id": instanceID,
+		"profile":     sm.client.Profile,
+		"region":      sm.client.Region,
+		"local_port":  localPort,
+		"remote_port": remotePort,
+	}).Info("Starting SSM port forwarding session")
+
+	// Check reachability first for a better error early
+	if err := sm.checkInstanceReachability(ctx, instanceID); err != nil {
+		return fmt.Errorf("instance not reachable via SSM: %w", err)
+	}
+
+	// Use aws ssm start-session with AWS-StartPortForwardingSession document
+	// Example: aws ssm start-session --target i-123 --document-name AWS-StartPortForwardingSession \
+	//          --parameters 'localPortNumber=[8888],portNumber=[80]'
+	doc := "AWS-StartPortForwardingSession"
+	params := fmt.Sprintf("localPortNumber=[%d],portNumber=[%d]", localPort, remotePort)
+
+	args := []string{
+		"ssm", "start-session",
+		"--target", instanceID,
+		"--profile", sm.client.Profile,
+		"--region", sm.client.Region,
+		"--document-name", doc,
+		"--parameters", params,
+	}
+
+	cmd := exec.CommandContext(ctx, "aws", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	logrus.WithField("command", "aws "+fmt.Sprintf("%v", args)).Debug("Executing AWS CLI command for port forwarding")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to start SSM port forwarding session: %w", err)
+	}
+	return nil
+}
+
 // GetInstanceInformation gets detailed information about an instance from SSM
 func (sm *SSMSessionManager) GetInstanceInformation(ctx context.Context, instanceID string) (*types.InstanceInformation, error) {
 	input := &ssm.DescribeInstanceInformationInput{

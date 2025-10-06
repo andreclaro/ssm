@@ -21,6 +21,7 @@ var quickAddRegion string
 var quickRemoveRegion string
 var quickAddProfile string
 var quickRemoveProfile string
+var portMaps []string
 
 // completionCmd represents the completion command
 var completionCmd = &cobra.Command{
@@ -479,8 +480,34 @@ func runConnect(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	// Connect to instance
+	// Connect to instance or start port forwarding if requested
 	ctx := context.Background()
+	if len(portMaps) > 0 {
+		var mappings []service.PortMapping
+		for _, m := range portMaps {
+			parts := strings.SplitN(m, ":", 2)
+			if len(parts) != 2 {
+				fmt.Fprintf(os.Stderr, "Invalid port mapping '%s'. Use LOCAL:REMOTE (e.g., 8888:80)\n", m)
+				os.Exit(1)
+			}
+			var localPort, remotePort int
+			if _, err := fmt.Sscanf(parts[0], "%d", &localPort); err != nil || localPort <= 0 || localPort > 65535 {
+				fmt.Fprintf(os.Stderr, "Invalid local port in mapping '%s'\n", m)
+				os.Exit(1)
+			}
+			if _, err := fmt.Sscanf(parts[1], "%d", &remotePort); err != nil || remotePort <= 0 || remotePort > 65535 {
+				fmt.Fprintf(os.Stderr, "Invalid remote port in mapping '%s'\n", m)
+				os.Exit(1)
+			}
+			mappings = append(mappings, service.PortMapping{LocalPort: localPort, RemotePort: remotePort})
+		}
+		if err := svc.PortForwardToInstanceMultiple(ctx, instanceName, mappings); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to start port forwarding: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	if err := svc.ConnectToInstance(ctx, instanceName); err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to connect to instance: %v\n", err)
 		os.Exit(1)
@@ -502,6 +529,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&quickRemoveRegion, "remove-region", "", "Disable a region for discovery and exit")
 	rootCmd.PersistentFlags().StringVar(&quickAddProfile, "add-profile", "", "Enable a profile for discovery and exit")
 	rootCmd.PersistentFlags().StringVar(&quickRemoveProfile, "remove-profile", "", "Disable a profile for discovery and exit")
+	// Port forwarding flags (repeatable). Use --forward/-L
+	rootCmd.Flags().StringArrayVarP(&portMaps, "forward", "L", nil, "Local:remote port forward (repeatable), e.g., -L 8888:80")
 
 	// Bind flags to viper
 	viper.BindPFlag("aws.profile", rootCmd.PersistentFlags().Lookup("profile"))

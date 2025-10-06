@@ -17,5 +17,3 @@
 - Ensure AWS CLI is installed and configured
 - Check network connectivity to AWS
 - Verify the instance is reachable via SSM (check ping status)
-
-

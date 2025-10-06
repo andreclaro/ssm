@@ -57,5 +57,3 @@ ssm completion powershell > ssm.ps1
 ssm t-<Tab>    # Shows all instances starting with "t-"
 ssm <Tab>      # Shows all available instance names
 ```
-
-

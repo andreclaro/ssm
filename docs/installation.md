@@ -42,5 +42,3 @@ sudo mv ssm /usr/local/bin/
   ]
 }
 ```
-
-

@@ -60,5 +60,3 @@ ssm list --profile staging
 ssm prod-web-01
 ssm staging-db-01
 ```
-
-

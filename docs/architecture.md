@@ -6,5 +6,3 @@ The CLI consists of several components:
 - Service Layer: Business logic for instance discovery and management
 - Storage Layer: SQLite database for caching instance metadata
 - AWS Layer: AWS SDK integration for EC2 and SSM operations
-
-

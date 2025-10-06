@@ -12,9 +12,10 @@ git clone https://github.com/andreclaro/ssm && cd ssm && go build -o ssm .
 ```
 
 ```bash
-ssm sync   # discover instances
-ssm list   # list available instances
-ssm my-db  # connect via SSM Session Manager
+ssm sync # discover instances
+ssm list # list available instances
+ssm my-db # connect via SSM Session Manager
+ssm my-server -L 8888:80 # port forward local 8888 to remote 80
 ```
 
 ## Features
@@ -32,6 +33,7 @@ ssm my-db  # connect via SSM Session Manager
 - [Configuration](docs/configuration.md)
 - [Architecture](docs/architecture.md)
 - [Troubleshooting](docs/troubleshooting.md)
+- [Design](docs/design.md)
 
 ## License
 
