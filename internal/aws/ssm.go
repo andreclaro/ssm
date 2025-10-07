@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"syscall"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
@@ -80,7 +81,22 @@ func (sm *SSMSessionManager) startSessionWithCLI(instanceID string) error {
 		"--region", sm.client.Region,
 	}
 
-	// Execute AWS CLI command
+	// Prefer replacing the current process so signals like Ctrl+C are handled by AWS CLI directly
+	if awsPath, lookErr := exec.LookPath("aws"); lookErr == nil {
+		logrus.WithFields(logrus.Fields{
+			"command": "aws " + fmt.Sprintf("%v", args),
+		}).Debug("Exec'ing AWS CLI (replacing current process)")
+		// syscall.Exec only returns on error
+		if err := syscall.Exec(awsPath, append([]string{"aws"}, args...), os.Environ()); err == nil {
+			return nil // unreachable if Exec succeeds
+		} else {
+			logrus.WithError(err).Warn("Failed to exec aws; falling back to spawning subprocess")
+		}
+	} else {
+		logrus.WithError(lookErr).Warn("Could not find aws in PATH; falling back to spawning subprocess")
+	}
+
+	// Fallback: spawn a subprocess attached to our stdio
 	cmd := exec.Command("aws", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -88,7 +104,7 @@ func (sm *SSMSessionManager) startSessionWithCLI(instanceID string) error {
 
 	logrus.WithFields(logrus.Fields{
 		"command": "aws " + fmt.Sprintf("%v", args),
-	}).Debug("Executing AWS CLI command")
+	}).Debug("Executing AWS CLI command (subprocess)")
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to start SSM session: %w", err)
