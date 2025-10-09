@@ -66,7 +66,7 @@ func runList(cmd *cobra.Command, args []string) {
 	if !listAll {
 		j := 0
 		for _, inst := range instances {
-			if strings.HasPrefix(inst.InstanceID, "mi-") && strings.EqualFold(inst.State, "Online") {
+			if strings.EqualFold(inst.State, "Online") || strings.EqualFold(inst.State, "running") {
 				instances[j] = inst
 				j++
 			}
