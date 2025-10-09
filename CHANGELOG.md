@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.4.0 - 2025-10-09
+
+### Added
+- Added pr template (github)
+
+### Fixed
+- Fix list issue to allow list all instances "running" and "Online"
+
+
 ## 0.3.0 - 2025-10-07
 
 ### Changed
