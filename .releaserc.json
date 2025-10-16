@@ -1,0 +1,44 @@
+{
+  "branches": [
+    "main"
+  ],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits"
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits"
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          { "path": "ssm_linux_amd64.tar.gz", "label": "ssm ${nextRelease.version} (linux amd64)" },
+          { "path": "ssm_linux_amd64.tar.gz.md5", "label": "ssm ${nextRelease.version} (linux amd64) tar.gz md5" },
+          { "path": "ssm_linux_amd64.md5", "label": "ssm ${nextRelease.version} (linux amd64) md5" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}
+
+
