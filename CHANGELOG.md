@@ -1,3 +1,16 @@
+## 1.0.0 (2025-10-16)
+
+### Features
+
+* add github actions to release ssm ([2656de3](https://github.com/andreclaro/ssm/commit/2656de38c34a9ef6d72e5ab7166f6a3bd984c952))
+* **app:** add port(s) forward support ([136e4f4](https://github.com/andreclaro/ssm/commit/136e4f497f4acd9fd2c19a2957ee7f159eb42b6a))
+* first release ([4dd2863](https://github.com/andreclaro/ssm/commit/4dd28634a85cce997d317bfca60ccbc2331a192c))
+* **github:** add pr template ([5794305](https://github.com/andreclaro/ssm/commit/57943058280641612af61f1aada07da09e1fbf27))
+
+### Bug Fixes
+
+* list all running/Online instances ([77edcbd](https://github.com/andreclaro/ssm/commit/77edcbd02b143811b319d623c488b662fa0db87f))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
