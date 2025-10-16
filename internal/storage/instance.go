@@ -118,17 +118,31 @@ func (r *InstanceRepository) SaveOrUpdateBatch(instances []*Instance) error {
 	})
 }
 
-// FindByName finds an instance by name
+// FindByName finds an instance by name, preferring reachable instances.
+// Preference order:
+//  1. SSM Online
+//  2. EC2 running
+//  3. Everything else (e.g., ConnectionLost, stopped)
+//
+// Within the same priority, choose the most recently seen/updated.
 func (r *InstanceRepository) FindByName(name string) (*Instance, error) {
 	var instance Instance
-	if err := DB.Preload("Tags").Where("name = ?", name).First(&instance).Error; err != nil {
+	// Use CASE ordering to prioritize desired states, then favor newest records.
+	// Note: "running" may be stored in various cases, so compare in lower().
+	orderExpr := `CASE 
+        WHEN state = 'Online' THEN 0 
+        WHEN lower(state) = 'running' THEN 1 
+        ELSE 2 
+    END ASC, last_seen DESC, updated_at DESC`
+
+	if err := DB.Preload("Tags").Where("name = ?", name).Order(orderExpr).First(&instance).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			// Try again by stripping common domain suffixes (e.g., .maas)
 			// This allows connecting with either base name or FQDN.
 			var alt Instance
 			if idx := indexOfDot(name); idx > 0 {
 				base := name[:idx]
-				if err2 := DB.Preload("Tags").Where("name = ?", base).First(&alt).Error; err2 == nil {
+				if err2 := DB.Preload("Tags").Where("name = ?", base).Order(orderExpr).First(&alt).Error; err2 == nil {
 					return &alt, nil
 				}
 			}

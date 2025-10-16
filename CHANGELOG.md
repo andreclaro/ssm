@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.5.0 - 2025-10-16
+
+### Changed
+- FindByName finds an instance by name, preferring reachable instances
+
 ## 0.4.0 - 2025-10-09
 
 ### Added
