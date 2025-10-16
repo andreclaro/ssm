@@ -11,16 +11,12 @@
 
 * list all running/Online instances ([77edcbd](https://github.com/andreclaro/ssm/commit/77edcbd02b143811b319d623c488b662fa0db87f))
 
-# Changelog
-
-All notable changes to this project will be documented in this file.
-
-## 0.5.0 - 2025-10-16
+## 0.5.0 (2025-10-16)
 
 ### Changed
 - FindByName finds an instance by name, preferring reachable instances
 
-## 0.4.0 - 2025-10-09
+## 0.4.0 (2025-10-09)
 
 ### Added
 - Added pr template (github)
@@ -29,18 +25,18 @@ All notable changes to this project will be documented in this file.
 - Fix list issue to allow list all instances "running" and "Online"
 
 
-## 0.3.0 - 2025-10-07
+## 0.3.0 (2025-10-07)
 
 ### Changed
 - Pass Ctrl+C to the SSM shell by exec'ing the AWS CLI in `internal/aws/ssm.go`.
 
-## 0.2.0 - 2025-10-06
+## 0.2.0 (2025-10-06)
 
 ### Added
 - Added port forward (`--forward`) functionality with multi ports support in one line: `ssm server -f 8888:80 -f 8889:89`
 
 
-## 0.1.0 - 2025-10-06
+## 0.1.0 (2025-10-06)
 
 Discover SSM-managed instances across AWS profiles/regions, cache them locally, and connect via AWS SSM Session Manager.
 
