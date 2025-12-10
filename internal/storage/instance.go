@@ -221,6 +221,37 @@ func (r *InstanceRepository) DeleteStale(olderThan time.Duration) error {
 	return nil
 }
 
+// DeleteByState removes instances with the specified state
+func (r *InstanceRepository) DeleteByState(state string) (int64, error) {
+	// First, get the instance IDs that will be deleted to clean up associated tags
+	var instanceIDs []string
+	if err := DB.Model(&Instance{}).Where("state = ?", state).Pluck("instance_id", &instanceIDs).Error; err != nil {
+		return 0, fmt.Errorf("failed to find instances with state %s: %w", state, err)
+	}
+
+	// Delete associated tags
+	if len(instanceIDs) > 0 {
+		if err := DB.Where("instance_id IN ?", instanceIDs).Delete(&Tag{}).Error; err != nil {
+			return 0, fmt.Errorf("failed to delete tags for instances with state %s: %w", state, err)
+		}
+	}
+
+	// Delete instances
+	result := DB.Where("state = ?", state).Delete(&Instance{})
+	if result.Error != nil {
+		return 0, fmt.Errorf("failed to delete instances with state %s: %w", state, result.Error)
+	}
+
+	if result.RowsAffected > 0 {
+		logrus.WithFields(logrus.Fields{
+			"count": result.RowsAffected,
+			"state": state,
+		}).Info("Deleted instances by state")
+	}
+
+	return result.RowsAffected, nil
+}
+
 // GetStats returns statistics about stored instances
 func (r *InstanceRepository) GetStats() (map[string]int, error) {
 	stats := make(map[string]int)
