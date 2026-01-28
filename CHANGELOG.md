@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/andreclaro/ssm/compare/v1.0.0...v1.1.0) (2026-01-28)
+
+### Features
+
+* Add 'clean' command to remove instances on state ConnectionLost ([e3e5fbe](https://github.com/andreclaro/ssm/commit/e3e5fbec072d5ab958b004a5a6bf8ee0bb810f34))
+
 ## 1.0.0 (2025-10-16)
 
 ### Features
